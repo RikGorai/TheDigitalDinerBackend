@@ -12,7 +12,11 @@ exports.signup = async (req, res) => {
         const hashed = await bcrypt.hash(password, 10);
         const user = await User.create({ name, phone, password: hashed });
 
-        res.status(201).json({ message: "User registered", user: { id: user.id, name: user.name, phone: user.phone } });
+        const role = phone === process.env.ADMIN_PHONE ? 'admin' : 'user'; // Check admin phone
+        const token = jwt.sign({ userId: user.id, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+        res.status(201).json({ message: "User registered", token, user: { id: user.id, name: user.name, phone: user.phone, role } });
+
     } catch (err) {
         res.status(500).json({ error: "Signup failed", details: err.message });
     }
