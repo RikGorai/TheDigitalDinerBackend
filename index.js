@@ -11,11 +11,18 @@ const orderRoutes = require('./routes/order.routes');
 
 const app = express();
 
-// Configure CORS to allow all origins
+// Configure CORS to allow requests from the specific frontend URL
+const allowedOrigins = ['http://localhost:5173', 'https://resonant-llama-ab3a73.netlify.app']; // Add your frontend URLs
 app.use(cors({
-    origin: '*', // Allow requests from any origin
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true, // Allow cookies if needed
+    credentials: true, // Allow cookies and credentials
 }));
 
 app.use(express.json());
